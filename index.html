@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F5A623">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gold News">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>XAUUSD News Analyzer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;800&display=swap');
+:root{--gold:#F5A623;--gold2:#FFD07A;--gold-dim:#7a5010;--green:#00E676;--red:#FF1744;--neutral:#78909C;--bg:#060810;--bg2:#0C0F18;--bg3:#111520;--bg4:#161B28;--border:rgba(245,166,35,0.12);--border2:rgba(245,166,35,0.25);--text:#B0BEC5;--text2:#78909C;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overscroll-behavior:none;}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;padding-bottom:env(safe-area-inset-bottom);}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(245,166,35,0.04) 0%,transparent 60%),radial-gradient(ellipse 40% 60% at 80% 80%,rgba(245,166,35,0.03) 0%,transparent 60%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(245,166,35,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(245,166,35,0.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+.app{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:16px 14px;padding-top:calc(16px + env(safe-area-inset-top));}
+
+/* INSTALL BANNER */
+.install-banner{display:none;background:linear-gradient(135deg,rgba(245,166,35,0.15),rgba(245,166,35,0.08));border:1px solid var(--border2);border-radius:12px;padding:14px 16px;margin-bottom:16px;align-items:center;gap:12px;}
+.install-banner.show{display:flex;}
+.install-banner-icon{font-size:24px;flex-shrink:0;}
+.install-banner-text{flex:1;}
+.install-banner-title{font-size:14px;font-weight:700;color:var(--gold);margin-bottom:2px;}
+.install-banner-sub{font-size:12px;color:var(--text2);}
+.install-btn{background:var(--gold);color:#000;border:none;padding:8px 16px;border-radius:8px;font-family:'Exo 2',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.install-close{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;padding:4px;}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-au{width:40px;height:40px;background:linear-gradient(135deg,#F5A623,#FFD07A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#000;box-shadow:0 0 20px rgba(245,166,35,0.3);}
+.logo-title{font-size:18px;font-weight:800;color:var(--gold);letter-spacing:2px;}
+.logo-sub{font-size:9px;color:var(--gold-dim);letter-spacing:3px;font-family:'Share Tech Mono',monospace;}
+.pulse-badge{display:flex;align-items:center;gap:6px;background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.2);padding:5px 10px;border-radius:20px;font-size:10px;color:var(--green);font-family:'Share Tech Mono',monospace;}
+.pulse{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+/* TABS */
+.tabs{display:flex;gap:3px;margin-bottom:16px;background:var(--bg2);padding:3px;border-radius:10px;border:1px solid var(--border);}
+.tab{flex:1;padding:9px 4px;border:none;background:transparent;color:var(--text2);font-family:'Exo 2',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border-radius:7px;transition:all 0.2s;letter-spacing:0.3px;}
+.tab.active{background:var(--bg4);color:var(--gold);border:1px solid var(--border2);}
+
+/* SETUP */
+.setup-panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
+.setup-title{font-size:10px;color:var(--gold-dim);letter-spacing:3px;font-family:'Share Tech Mono',monospace;margin-bottom:12px;}
+.api-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.api-item{display:flex;flex-direction:column;gap:5px;}
+.api-label{font-size:10px;color:var(--gold-dim);letter-spacing:1px;font-family:'Share Tech Mono',monospace;display:flex;align-items:center;gap:5px;}
+.api-status{width:6px;height:6px;border-radius:50%;display:inline-block;}
+.api-status.set{background:var(--green);}
+.api-status.unset{background:var(--red);}
+input[type=text],input[type=password]{background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 10px;outline:none;width:100%;transition:border-color 0.2s;}
+input:focus{border-color:var(--border2);}
+input::placeholder{color:rgba(176,190,197,0.3);}
+.setup-note{margin-top:10px;font-size:11px;color:var(--text2);line-height:1.7;background:var(--bg3);border-radius:8px;padding:10px 12px;border-left:3px solid var(--gold-dim);}
+.setup-note a{color:var(--gold);text-decoration:none;}
+
+/* SOURCES */
+.source-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.source-btn{padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-family:'Exo 2',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.source-btn.active{background:var(--bg4);color:var(--gold);border-color:var(--border2);}
+
+/* BUTTONS */
+.fetch-btn{width:100%;padding:13px;background:linear-gradient(135deg,#F5A623,#e08900);border:none;border-radius:10px;color:#000;font-family:'Exo 2',sans-serif;font-size:14px;font-weight:800;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;margin-bottom:14px;box-shadow:0 4px 20px rgba(245,166,35,0.25);}
+.fetch-btn:active{transform:scale(0.98);}
+.fetch-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* LOADER */
+.loader{display:none;text-align:center;padding:32px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;}
+.loader.on{display:block;}
+.spin{width:32px;height:32px;border:3px solid var(--bg3);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-txt{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold-dim);letter-spacing:2px;}
+
+/* NEWS CARDS */
+.news-list{display:flex;flex-direction:column;gap:8px;}
+.news-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all 0.2s;animation:fadeUp 0.3s ease both;position:relative;overflow:hidden;}
+.news-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.news-card.bullish::before{background:var(--green);}
+.news-card.bearish::before{background:var(--red);}
+.news-card.neutral::before{background:var(--neutral);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px;}
+.card-title{font-size:13px;font-weight:600;color:#CFD8DC;line-height:1.4;flex:1;}
+.card-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:1px;flex-shrink:0;font-family:'Share Tech Mono',monospace;}
+.card-badge.bullish{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2);}
+.card-badge.bearish{background:rgba(255,23,68,0.1);color:var(--red);border:1px solid rgba(255,23,68,0.2);}
+.card-badge.neutral{background:rgba(120,144,156,0.1);color:var(--neutral);border:1px solid rgba(120,144,156,0.2);}
+.card-meta{display:flex;gap:6px;align-items:center;margin-bottom:7px;flex-wrap:wrap;}
+.card-source{font-size:10px;color:var(--gold-dim);font-family:'Share Tech Mono',monospace;background:rgba(245,166,35,0.07);padding:2px 6px;border-radius:4px;}
+.card-time{font-size:10px;color:var(--text2);font-family:'Share Tech Mono',monospace;}
+.card-summary{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:8px;display:none;}
+.card-summary.open{display:block;}
+.card-footer{display:flex;gap:6px;flex-wrap:wrap;}
+.tag{font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(245,166,35,0.06);color:var(--gold-dim);border:1px solid rgba(245,166,35,0.1);font-family:'Share Tech Mono',monospace;}
+
+/* MANUAL */
+.input-lbl{font-size:10px;color:var(--gold-dim);letter-spacing:2px;font-family:'Share Tech Mono',monospace;margin-bottom:7px;}
+textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;padding:12px;resize:vertical;min-height:90px;outline:none;transition:border-color 0.2s;line-height:1.5;margin-bottom:10px;}
+textarea:focus{border-color:var(--border2);}
+textarea::placeholder{color:rgba(176,190,197,0.25);}
+.sample-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.sample-btn{background:transparent;color:var(--gold-dim);border:1px solid var(--border);padding:7px 12px;border-radius:7px;font-family:'Exo 2',sans-serif;font-size:11px;cursor:pointer;transition:all 0.2s;}
+.sample-btn:active{border-color:var(--border2);color:var(--gold);}
+
+/* RESULT */
+.result-panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:10px;display:none;animation:fadeUp 0.3s ease;}
+.result-panel.on{display:block;}
+.res-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.res-lbl{font-size:10px;color:var(--gold-dim);letter-spacing:3px;font-family:'Share Tech Mono',monospace;}
+.res-badge{font-size:15px;font-weight:800;padding:5px 14px;border-radius:7px;text-transform:uppercase;letter-spacing:2px;}
+.res-badge.bullish{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
+.res-badge.bearish{background:rgba(255,23,68,0.1);color:var(--red);border:1px solid rgba(255,23,68,0.3);}
+.res-badge.neutral{background:rgba(120,144,156,0.1);color:var(--neutral);border:1px solid rgba(120,144,156,0.2);}
+.meter-wrap{margin-bottom:14px;}
+.meter-lbls{display:flex;justify-content:space-between;font-size:9px;font-family:'Share Tech Mono',monospace;margin-bottom:4px;}
+.meter-lbls span:first-child{color:var(--red);}
+.meter-lbls span:last-child{color:var(--green);}
+.meter-lbls span:nth-child(2){color:var(--neutral);}
+.meter-bar{height:6px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+.meter-fill{height:100%;border-radius:4px;transition:width 0.8s cubic-bezier(.4,0,.2,1);}
+.meter-fill.bullish{background:linear-gradient(90deg,#00b050,var(--green));}
+.meter-fill.bearish{background:linear-gradient(90deg,var(--red),#ff6680);}
+.meter-fill.neutral{background:linear-gradient(90deg,#455a64,#78909c);}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
+.res-item{background:var(--bg3);border-radius:8px;padding:9px 11px;border:1px solid rgba(245,166,35,0.06);}
+.res-item-lbl{font-size:9px;color:var(--gold-dim);letter-spacing:2px;font-family:'Share Tech Mono',monospace;margin-bottom:3px;}
+.res-item-val{font-size:13px;font-weight:600;}
+.factors-title{font-size:9px;color:var(--gold-dim);letter-spacing:2px;font-family:'Share Tech Mono',monospace;margin-bottom:7px;}
+.factor{display:flex;gap:7px;padding:6px 0;border-bottom:1px solid rgba(245,166,35,0.05);font-size:12px;align-items:flex-start;}
+.factor:last-child{border-bottom:none;}
+.action-box{background:var(--bg3);border-radius:8px;padding:11px 13px;border-left:3px solid var(--gold);margin-top:10px;}
+.action-lbl{font-size:9px;color:var(--gold);letter-spacing:2px;font-family:'Share Tech Mono',monospace;margin-bottom:5px;}
+.action-val{font-size:13px;line-height:1.6;}
+
+/* ERROR */
+.err-box{background:rgba(255,23,68,0.07);border:1px solid rgba(255,23,68,0.2);border-radius:8px;padding:10px 12px;color:var(--red);font-size:12px;display:none;margin-bottom:10px;}
+.err-box.on{display:block;}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;background:var(--bg2);border:1px dashed var(--border);border-radius:12px;color:var(--text2);}
+.empty-icon{font-size:32px;margin-bottom:10px;opacity:0.4;}
+.empty-txt{font-size:13px;}
+
+@media(max-width:400px){.api-grid{grid-template-columns:1fr;}.res-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Install Banner -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-banner-icon">📲</div>
+    <div class="install-banner-text">
+      <div class="install-banner-title">Ilovani o'rnatish</div>
+      <div class="install-banner-sub">Bosh ekranga qo'shing — tezroq ishlaydi</div>
+    </div>
+    <button class="install-btn" onclick="installApp()">O'rnatish</button>
+    <button class="install-close" onclick="closeBanner()">✕</button>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-au">Au</div>
+      <div>
+        <div class="logo-title">GOLD NEWS</div>
+        <div class="logo-sub">AI · Live · Sentiment</div>
+      </div>
+    </div>
+    <div class="pulse-badge"><div class="pulse"></div>LIVE</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('auto')">🌐 Yangiliklar</button>
+    <button class="tab" onclick="switchTab('manual')">✍️ Tahlil</button>
+    <button class="tab" onclick="switchTab('setup')">⚙️ API</button>
+  </div>
+
+  <!-- AUTO TAB -->
+  <div id="autoTab" style="display:block">
+    <div class="source-row">
+      <button class="source-btn active" onclick="toggleSource(this,'rss')" data-src="rss">📡 RSS</button>
+      <button class="source-btn" onclick="toggleSource(this,'newsapi')" data-src="newsapi">📰 NewsAPI</button>
+      <button class="source-btn" onclick="toggleSource(this,'finnhub')" data-src="finnhub">📈 Finnhub</button>
+    </div>
+    <button class="fetch-btn" onclick="fetchNews()" id="fetchBtn">⚡ Yangiliklar Olish</button>
+    <div class="err-box" id="autoErr"></div>
+    <div class="loader" id="autoLoader"><div class="spin"></div><div class="loader-txt" id="loaderTxt">Yuklanmoqda...</div></div>
+    <div id="newsList">
+      <div class="empty"><div class="empty-icon">📰</div><div class="empty-txt">Yangiliklar olish uchun tugmani bosing</div></div>
+    </div>
+  </div>
+
+  <!-- MANUAL TAB -->
+  <div id="manualTab" style="display:none">
+    <div class="input-lbl">📰 Yangilik matnini kiriting</div>
+    <textarea id="manualInput" placeholder="Yangilik matnini bu yerga kiriting..."></textarea>
+    <div class="sample-row">
+      <button class="sample-btn" onclick="setSample(0)">Fed</button>
+      <button class="sample-btn" onclick="setSample(1)">NFP</button>
+      <button class="sample-btn" onclick="setSample(2)">Geo</button>
+    </div>
+    <button class="fetch-btn" onclick="analyzeManual()" id="manualBtn">⚡ AI Tahlil</button>
+    <div class="err-box" id="manualErr"></div>
+    <div class="loader" id="manualLoader"><div class="spin"></div><div class="loader-txt">AI tahlil qilmoqda...</div></div>
+    <div class="result-panel" id="manualResult">
+      <div class="res-top">
+        <div class="res-lbl">XAUUSD SENTIMENT</div>
+        <div class="res-badge" id="resBadge">—</div>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-lbls"><span>◀ BEARISH</span><span>NEUTRAL</span><span>BULLISH ▶</span></div>
+        <div class="meter-bar"><div class="meter-fill" id="resMeter" style="width:50%"></div></div>
+      </div>
+      <div class="res-grid">
+        <div class="res-item"><div class="res-item-lbl">MUHIMLIK</div><div class="res-item-val" id="resImpact">—</div></div>
+        <div class="res-item"><div class="res-item-lbl">VAQT</div><div class="res-item-val" id="resTime">—</div></div>
+        <div class="res-item"><div class="res-item-lbl">ISHONCH</div><div class="res-item-val" id="resConf">—</div></div>
+        <div class="res-item"><div class="res-item-lbl">KATEGORIYA</div><div class="res-item-val" id="resCat">—</div></div>
+      </div>
+      <div class="factors-title">ASOSIY OMILLAR</div>
+      <div id="resFactors"></div>
+      <div class="action-box">
+        <div class="action-lbl">⚡ TRADING TAVSIYASI</div>
+        <div class="action-val" id="resAction">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP TAB -->
+  <div id="setupTab" style="display:none">
+    <div class="setup-panel">
+      <div class="setup-title">⚙ API KALITLAR</div>
+      <div class="api-grid">
+        <div class="api-item">
+          <div class="api-label"><span class="api-status unset" id="newsapiStatus"></span>NewsAPI.org</div>
+          <input type="password" id="newsapiKey" placeholder="API Key..." oninput="saveKey('newsapi',this.value)">
+        </div>
+        <div class="api-item">
+          <div class="api-label"><span class="api-status unset" id="finnhubStatus"></span>Finnhub.io</div>
+          <input type="password" id="finnhubKey" placeholder="API Key..." oninput="saveKey('finnhub',this.value)">
+        </div>
+      </div>
+      <div class="setup-note">
+        🔑 <strong>Bepul API olish:</strong><br>
+        • <a href="https://newsapi.org/register" target="_blank">newsapi.org/register</a><br>
+        • <a href="https://finnhub.io/register" target="_blank">finnhub.io/register</a><br>
+        • RSS — API keysiz ishlaydi
+      </div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div class="setup-title">📲 ILOVA HAQIDA</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+        Versiya: 1.0.0<br>
+        Manbalar: RSS (Kitco, Reuters), NewsAPI, Finnhub<br>
+        AI: Claude Sonnet<br>
+        <br>
+        <span style="color:var(--gold-dim);font-family:'Share Tech Mono',monospace;font-size:11px;">
+          Bosh ekranga qo'shish uchun: Safari → Share → Add to Home Screen
+        </span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── PWA ──
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').classList.remove('show');
+});
+async function installApp() {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    const r = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('installBanner').classList.remove('show');
+  }
+}
+function closeBanner() { document.getElementById('installBanner').classList.remove('show'); }
+
+// ── SERVICE WORKER ──
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW:', e));
+}
+
+// ── STATE ──
+const keys = { newsapi: localStorage.getItem('k_newsapi')||'', finnhub: localStorage.getItem('k_finnhub')||'' };
+const activeSources = new Set(['rss']);
+const samples = [
+  "Federal Reserve foiz stavkasini 0.25 foiz punktga oshirdi. Fed raisi inflyatsiya hali ham yuqori ekanligini ta'kidladi va stavkalarni tez pasaytirish rejalashtirilmayotganini bildirdi.",
+  "AQSh iqtisodiyoti o'tgan oyda kutilganidan ko'proq 350,000 ta yangi ish o'rni yaratdi. Ishsizlik 3.5% ga tushdi. Dollar keskin o'sdi.",
+  "Rossiya-Ukraina mojarosi kuchaymoqda. Geopolitik taranglik ortib bormoqda. Investorlar xavfsiz aktiv sifatida oltinga o'tmoqda."
+];
+
+// Load saved keys
+if(keys.newsapi) { document.getElementById('newsapiKey').value = keys.newsapi; document.getElementById('newsapiStatus').className='api-status set'; }
+if(keys.finnhub) { document.getElementById('finnhubKey').value = keys.finnhub; document.getElementById('finnhubStatus').className='api-status set'; }
+
+// ── TABS ──
+function switchTab(t) {
+  ['auto','manual','setup'].forEach(tab => {
+    const el = document.getElementById(tab+'Tab');
+    if(el) el.style.display = tab===t ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', ['auto','manual','setup'][i]===t));
+}
+
+// ── SOURCE ──
+function toggleSource(btn, src) {
+  if(activeSources.has(src)) { if(activeSources.size===1) return; activeSources.delete(src); btn.classList.remove('active'); }
+  else { activeSources.add(src); btn.classList.add('active'); }
+}
+
+// ── KEYS ──
+function saveKey(type, val) {
+  keys[type] = val.trim();
+  localStorage.setItem('k_'+type, val.trim());
+  document.getElementById(type+'Status').className = 'api-status ' + (val.trim() ? 'set' : 'unset');
+}
+
+// ── RSS ──
+const RSS_FEEDS = [
+  { url:'https://www.kitco.com/rss/kitconews.xml', name:'Kitco' },
+  { url:'https://feeds.reuters.com/reuters/businessNews', name:'Reuters' },
+  { url:'https://www.investing.com/rss/news_25.rss', name:'Investing.com' },
+];
+
+async function fetchRSS() {
+  const results = [];
+  for(const feed of RSS_FEEDS) {
+    try {
+      const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(feed.url);
+      const r = await fetch(proxy);
+      const d = await r.json();
+      const xml = new DOMParser().parseFromString(d.contents, 'text/xml');
+      xml.querySelectorAll('item').forEach((item, i) => {
+        if(i>=5) return;
+        const title = item.querySelector('title')?.textContent||'';
+        const desc = (item.querySelector('description')?.textContent||'').replace(/<[^>]+>/g,'').substring(0,200);
+        const pubDate = item.querySelector('pubDate')?.textContent||'';
+        const link = item.querySelector('link')?.textContent||'';
+        if(title) results.push({title,desc,pubDate,link,source:feed.name});
+      });
+    } catch(e){}
+  }
+  return results;
+}
+
+async function fetchNewsAPI() {
+  if(!keys.newsapi) return [];
+  try {
+    const r = await fetch(`https://newsapi.org/v2/everything?q=gold+XAUUSD+fed+inflation&language=en&sortBy=publishedAt&pageSize=10&apiKey=${keys.newsapi}`);
+    const d = await r.json();
+    if(d.status!=='ok') return [];
+    return (d.articles||[]).map(a => ({title:a.title||'',desc:a.description||'',pubDate:a.publishedAt||'',link:a.url||'',source:a.source?.name||'NewsAPI'}));
+  } catch(e){ return []; }
+}
+
+async function fetchFinnhub() {
+  if(!keys.finnhub) return [];
+  try {
+    const r = await fetch(`https://finnhub.io/api/v1/news?category=general&token=${keys.finnhub}`);
+    const d = await r.json();
+    const kw = ['gold','xauusd','fed','federal reserve','inflation','dollar','rate'];
+    return (d||[]).filter(a=>kw.some(k=>(a.headline+a.summary).toLowerCase().includes(k))).slice(0,10)
+      .map(a=>({title:a.headline||'',desc:a.summary||'',pubDate:new Date(a.datetime*1000).toISOString(),link:a.url||'',source:a.source||'Finnhub'}));
+  } catch(e){ return []; }
+}
+
+async function fetchNews() {
+  const btn = document.getElementById('fetchBtn');
+  btn.disabled = true;
+  showAutoLoader(true,'Yangiliklar yuklanmoqda...');
+  showAutoErr('');
+  document.getElementById('newsList').innerHTML = '';
+  let all = [];
+  try {
+    const promises = [];
+    if(activeSources.has('rss')) promises.push(fetchRSS());
+    if(activeSources.has('newsapi')) promises.push(fetchNewsAPI());
+    if(activeSources.has('finnhub')) promises.push(fetchFinnhub());
+    const results = await Promise.allSettled(promises);
+    results.forEach(r=>{ if(r.status==='fulfilled') all = all.concat(r.value); });
+    const seen = new Set();
+    all = all.filter(n=>{ const k=n.title.substring(0,40); if(seen.has(k)) return false; seen.add(k); return true; });
+    if(!all.length){ showAutoErr('Yangilik topilmadi.'); showAutoLoader(false); btn.disabled=false; return; }
+    showAutoLoader(true,`${all.length} ta yangilik AI tahlil qilmoqda...`);
+    const analyzed = await analyzeNewsBatch(all.slice(0,12));
+    renderNews(analyzed);
+  } catch(e){ showAutoErr('Xatolik: '+e.message); }
+  showAutoLoader(false);
+  btn.disabled = false;
+}
+
+async function analyzeNewsBatch(items) {
+  const titles = items.map((n,i)=>`${i+1}. ${n.title}`).join('\n');
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:`Siz XAUUSD yangilik analizatorisiz. JSON array qaytaring, boshqa hech narsa yozmang:\n[{"id":1,"sentiment":"bullish|bearish|neutral","score":0-100,"impact":"Yuqori|O'rta|Past","tags":["tag1","tag2"]}]`,messages:[{role:"user",content:"Quyidagilarni XAUUSD uchun tahlil qiling:\n"+titles}]})});
+    const data = await response.json();
+    const analyzed = JSON.parse(data.content.map(i=>i.text||'').join('').replace(/```json|```/g,'').trim());
+    return items.map((item,i)=>({...item,...(analyzed.find(x=>x.id===i+1)||{sentiment:'neutral',score:50,impact:"O'rta",tags:[]})}));
+  } catch(e){ return items.map(item=>({...item,sentiment:'neutral',score:50,impact:"O'rta",tags:[]})); }
+}
+
+function renderNews(items) {
+  if(!items.length){ document.getElementById('newsList').innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-txt">Yangilik topilmadi</div></div>'; return; }
+  items.sort((a,b)=>{const w={"Yuqori":3,"O'rta":2,"Past":1};const d=(w[b.impact]||1)-(w[a.impact]||1);return d||Math.abs(b.score-50)-Math.abs(a.score-50);});
+  document.getElementById('newsList').innerHTML = items.map((item,idx)=>`
+    <div class="news-card ${item.sentiment}" style="animation-delay:${idx*0.05}s" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div class="card-title">${esc(item.title)}</div>
+        <div class="card-badge ${item.sentiment}">${item.sentiment==='bullish'?'▲ BUY':item.sentiment==='bearish'?'▼ SELL':'— NEU'}</div>
+      </div>
+      <div class="card-meta">
+        <span class="card-source">${esc(item.source)}</span>
+        <span class="card-time">${fmtTime(item.pubDate)}</span>
+        <span class="card-source" style="color:${item.impact==='Yuqori'?'var(--gold)':'var(--neutral)'}">${item.impact}</span>
+      </div>
+      ${item.desc?`<div class="card-summary">${esc(item.desc)}</div>`:''}
+      <div class="card-footer">${(item.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+function toggleCard(el){ el.querySelector('.card-summary')?.classList.toggle('open'); }
+function fmtTime(s){if(!s)return'';try{const d=new Date(s);if(isNaN(d))return s.substring(0,16);const diff=Math.floor((Date.now()-d)/60000);if(diff<60)return diff+'m oldin';if(diff<1440)return Math.floor(diff/60)+'s oldin';return d.toLocaleDateString('uz');}catch{return'';}}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── MANUAL ──
+function setSample(i){ document.getElementById('manualInput').value=samples[i]; }
+
+async function analyzeManual(){
+  const text=document.getElementById('manualInput').value.trim();
+  if(!text){showManualErr('Iltimos, matn kiriting.');return;}
+  showManualErr(''); showManualLoader(true);
+  document.getElementById('manualResult').classList.remove('on');
+  document.getElementById('manualBtn').disabled=true;
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:`Siz XAUUSD yangilik analizatorisiz. Faqat JSON qaytaring:\n{"sentiment":"bullish|bearish|neutral","score":0-100,"impact":"Yuqori|O'rta|Past","timeframe":"Qisqa|O'rta|Uzoq muddat","confidence":"Yuqori|O'rta|Past","category":"Fed/Foiz|NFP/Ish|Inflyatsiya|Geopolitika|DXY/Dollar|Boshqa","factors":["omil1","omil2","omil3"],"action":"Trading tavsiyasi o'zbekcha 1-2 gap"}`,messages:[{role:"user",content:text}]})});
+    const d=await r.json();
+    const result=JSON.parse(d.content.map(i=>i.text||'').join('').replace(/```json|```/g,'').trim());
+    showManualResult(result);
+  }catch(e){showManualErr('Xatolik yuz berdi.');}
+  showManualLoader(false);
+  document.getElementById('manualBtn').disabled=false;
+}
+
+function showManualResult(r){
+  const b=document.getElementById('resBadge');
+  b.className='res-badge '+r.sentiment;
+  b.textContent=r.sentiment==='bullish'?'▲ BULLISH':r.sentiment==='bearish'?'▼ BEARISH':'— NEUTRAL';
+  const f=document.getElementById('resMeter');
+  f.className='meter-fill '+r.sentiment;
+  f.style.width=Math.min(Math.max(r.score,5),95)+'%';
+  document.getElementById('resImpact').textContent=r.impact||'—';
+  document.getElementById('resTime').textContent=r.timeframe||'—';
+  document.getElementById('resConf').textContent=r.confidence||'—';
+  document.getElementById('resCat').textContent=r.category||'—';
+  const icon=r.sentiment==='bullish'?'🟢':r.sentiment==='bearish'?'🔴':'⚪';
+  document.getElementById('resFactors').innerHTML=(r.factors||[]).map(f=>`<div class="factor"><span>${icon}</span><span>${f}</span></div>`).join('');
+  document.getElementById('resAction').textContent=r.action||'—';
+  document.getElementById('manualResult').classList.add('on');
+}
+
+// ── HELPERS ──
+function showAutoLoader(v,txt){document.getElementById('autoLoader').classList.toggle('on',v);if(txt)document.getElementById('loaderTxt').textContent=txt;}
+function showManualLoader(v){document.getElementById('manualLoader').classList.toggle('on',v);}
+function showAutoErr(msg){const e=document.getElementById('autoErr');e.textContent=msg?'⚠ '+msg:'';e.classList.toggle('on',!!msg);}
+function showManualErr(msg){const e=document.getElementById('manualErr');e.textContent=msg?'⚠ '+msg:'';e.classList.toggle('on',!!msg);}
+</script>
+</body>
+</html>
